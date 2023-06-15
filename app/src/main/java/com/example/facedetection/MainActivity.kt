@@ -17,16 +17,14 @@ import com.example.facedetection.databinding.ActivityMainBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-typealias LumaListener = (luma: Double) -> Unit
-
-class MainActivity : AppCompatActivity(), FaceDetectorHelper.DetectorListener {
+class MainActivity : AppCompatActivity(), FaceLandmarkerHelper.LandmarkerListener {
     private lateinit var viewBinding: ActivityMainBinding
 
     private lateinit var cameraExecutor: ExecutorService
 
     private var imageAnalyzer: ImageAnalysis? = null
 
-    private lateinit var faceDetectorHelper: FaceDetectorHelper
+    private lateinit var faceLandmarkerHelper: FaceLandmarkerHelper
 
     private val activityResultLauncher =
         registerForActivityResult(
@@ -60,14 +58,13 @@ class MainActivity : AppCompatActivity(), FaceDetectorHelper.DetectorListener {
 
         // Request camera permissions
         if (allPermissionsGranted()) {
-            cameraExecutor.execute{
-                faceDetectorHelper = FaceDetectorHelper(this, this, )
+            cameraExecutor.execute {
+                faceLandmarkerHelper = FaceLandmarkerHelper(this, this)
                 startCamera()
             }
         } else {
             requestPermissions()
         }
-
 
 
         // Set up the listeners for take photo and video capture buttons
@@ -79,8 +76,8 @@ class MainActivity : AppCompatActivity(), FaceDetectorHelper.DetectorListener {
     override fun onResume() {
         super.onResume()
         cameraExecutor.execute {
-            if (faceDetectorHelper.isClosed()) {
-                faceDetectorHelper.setupFaceDetector()
+            if (faceLandmarkerHelper.isClosed()) {
+                faceLandmarkerHelper.setupFaceLandmarker()
             }
         }
     }
@@ -114,7 +111,7 @@ class MainActivity : AppCompatActivity(), FaceDetectorHelper.DetectorListener {
                     .also {
                         it.setAnalyzer(
                             cameraExecutor,
-                            faceDetectorHelper::detectLivestreamFrame
+                            faceLandmarkerHelper::detectLivestreamFrame
                         )
                     }
 
@@ -136,9 +133,9 @@ class MainActivity : AppCompatActivity(), FaceDetectorHelper.DetectorListener {
 
     override fun onPause() {
         super.onPause()
-        if (this::faceDetectorHelper.isInitialized) {
+        if (this::faceLandmarkerHelper.isInitialized) {
             // Close the face detector and release resources
-            cameraExecutor.execute { faceDetectorHelper.clearFaceDetector() }
+            cameraExecutor.execute { faceLandmarkerHelper.clearFaceLandmarker() }
         }
     }
 
@@ -170,15 +167,17 @@ class MainActivity : AppCompatActivity(), FaceDetectorHelper.DetectorListener {
         Log.d("tan264", error)
     }
 
-    override fun onResults(resultBundle: FaceDetectorHelper.ResultBundle) {
+    override fun onResults(resultBundle: FaceLandmarkerHelper.ResultBundle) {
+        Log.d("tan264", "co")
+        this.runOnUiThread {
+            viewBinding.textView.text = getString(R.string.face_detected)
+        }
+    }
+
+    override fun onEmpty() {
+        Log.d("tan264", "khong co")
         this.runOnUiThread{
-            val detectionResult = resultBundle.results[0]
-            if(detectionResult.detections().size <= 0) {
-                Log.d("tan264", "Khong co mat")
-                viewBinding.textView.text = "Khong co mat"
-            } else {
-                viewBinding.textView.text = "Co mat"
-            }
+            viewBinding.textView.text = getString(R.string.no_face)
         }
     }
 }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Face Detection</string>
+    <string name="no_face">No face detected. Position your face within the frame.</string>
+    <string name="face_detected">Face detected.</string>
 </resources>

@@ -26,71 +26,75 @@ import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
-import com.google.mediapipe.tasks.vision.facedetector.FaceDetectorResult
+import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
+import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
 
-class FaceDetectorHelper(
+class FaceLandmarkerHelper(
     val context: Context,
     // The listener is only used when running in RunningMode.LIVE_STREAM
-    var faceDetectorListener: DetectorListener? = null
+    var faceLandmarkerListener: LandmarkerListener? = null
 ) {
 
     // For this example this needs to be a var so it can be reset on changes. If the faceDetector
     // will not change, a lazy val would be preferable.
-    private var faceDetector: FaceDetector? = null
+    private var faceLandmarker: FaceLandmarker? = null
 
     init {
-        setupFaceDetector()
+        setupFaceLandmarker()
     }
 
-    fun clearFaceDetector() {
-        faceDetector?.close()
-        faceDetector = null
+    fun clearFaceLandmarker() {
+        faceLandmarker?.close()
+        faceLandmarker = null
     }
 
     // Initialize the face detector using current settings on the
     // thread that is using it. CPU can be used with detectors
     // that are created on the main thread and used on a background thread, but
     // the GPU delegate needs to be used on the thread that initialized the detector
-    fun setupFaceDetector() {
-        if (faceDetectorListener == null) {
+    fun setupFaceLandmarker() {
+        if (faceLandmarkerListener == null) {
             throw IllegalStateException(
                 "faceDetectorListener must be set when runningMode is LIVE_STREAM."
             )
         }
 
-        val modelName = "blaze_face_short_range.tflite"
+        val modelName = "face_landmarker.task"
         val threshold: Float = THRESHOLD_DEFAULT
         val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath(modelName)
 
         try {
-            val optionsBuilder = FaceDetector.FaceDetectorOptions.builder()
-                .setBaseOptions(baseOptionsBuilder.build()).setMinDetectionConfidence(threshold)
+            val optionsBuilder = FaceLandmarker.FaceLandmarkerOptions.builder()
+                .setBaseOptions(baseOptionsBuilder.build()).setMinFaceDetectionConfidence(threshold)
                 .setResultListener(this::returnLivestreamResult)
                 .setErrorListener(this::returnLivestreamError)
                 .setRunningMode(RunningMode.LIVE_STREAM)
             val options = optionsBuilder.build()
-            faceDetector = FaceDetector.createFromOptions(context, options)
+            faceLandmarker = FaceLandmarker.createFromOptions(context, options)
         } catch (e: IllegalStateException) {
-            faceDetectorListener?.onError(
-                "Face detector failed to initialize. See error logs for details"
+            faceLandmarkerListener?.onError(
+                "Face Landmarker failed to initialize. See error logs for " +
+                        "details"
             )
-            Log.e(TAG, "TFLite failed to load model with error: " + e.message)
+            Log.e(
+                TAG, "MediaPipe failed to load the task with error: " + e
+                    .message
+            )
         } catch (e: RuntimeException) {
-            faceDetectorListener?.onError(
-                "Face detector failed to initialize. See error logs for " +
+            faceLandmarkerListener?.onError(
+                "Face Landmarker failed to initialize. See error logs for " +
                         "details", GPU_ERROR
             )
             Log.e(
                 TAG,
-                "Face detector failed to load model with error: " + e.message
+                "Face Landmarker failed to load model with error: " + e.message
             )
         }
     }
 
     // Return running status of recognizer helper
     fun isClosed(): Boolean {
-        return faceDetector == null
+        return faceLandmarker == null
     }
 
     // Runs face detection on live streaming cameras frame-by-frame and returns the results
@@ -153,30 +157,34 @@ class FaceDetectorHelper(
     fun detectAsync(mpImage: MPImage, frameTime: Long) {
         // As we're using running mode LIVE_STREAM, the detection result will be returned in
         // returnLivestreamResult function
-        faceDetector?.detectAsync(mpImage, frameTime)
+        faceLandmarker?.detectAsync(mpImage, frameTime)
     }
 
     // Return the detection result to this FaceDetectorHelper's caller
     private fun returnLivestreamResult(
-        result: FaceDetectorResult,
+        result: FaceLandmarkerResult,
         input: MPImage
     ) {
-        val finishTimeMs = SystemClock.uptimeMillis()
-        val inferenceTime = finishTimeMs - result.timestampMs()
+        if (result.faceLandmarks().size > 0) {
+            val finishTimeMs = SystemClock.uptimeMillis()
+            val inferenceTime = finishTimeMs - result.timestampMs()
 
-        faceDetectorListener?.onResults(
-            ResultBundle(
-                listOf(result),
-                inferenceTime,
-                input.height,
-                input.width
+            faceLandmarkerListener?.onResults(
+                ResultBundle(
+                    result,
+                    inferenceTime,
+                    input.height,
+                    input.width
+                )
             )
-        )
+        } else {
+            faceLandmarkerListener?.onEmpty()
+        }
     }
 
     // Return errors thrown during detection to this FaceDetectorHelper's caller
     private fun returnLivestreamError(error: RuntimeException) {
-        faceDetectorListener?.onError(
+        faceLandmarkerListener?.onError(
             error.message ?: "An unknown error has occurred"
         )
     }
@@ -184,25 +192,27 @@ class FaceDetectorHelper(
     // Wraps results from inference, the time it takes for inference to be performed, and
     // the input image and height for properly scaling UI to return back to callers
     data class ResultBundle(
-        val results: List<FaceDetectorResult>,
+        val results: FaceLandmarkerResult,
         val inferenceTime: Long,
         val inputImageHeight: Int,
         val inputImageWidth: Int,
     )
 
     companion object {
-//        const val DELEGATE_CPU = 0
+        //        const val DELEGATE_CPU = 0
 //        const val DELEGATE_GPU = 1
         const val THRESHOLD_DEFAULT = 0.5F
         const val OTHER_ERROR = 0
         const val GPU_ERROR = 1
 
-        const val TAG = "FaceDetectorHelper"
+        const val TAG = "FaceLandmarkerHelper.kt"
     }
 
     // Used to pass results or errors back to the calling class
-    interface DetectorListener {
+    interface LandmarkerListener {
         fun onError(error: String, errorCode: Int = OTHER_ERROR)
         fun onResults(resultBundle: ResultBundle)
+
+        fun onEmpty() {}
     }
 }
