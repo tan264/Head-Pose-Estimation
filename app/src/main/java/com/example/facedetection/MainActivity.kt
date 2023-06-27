@@ -14,6 +14,15 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.facedetection.databinding.ActivityMainBinding
+import org.opencv.android.OpenCVLoader
+import org.opencv.calib3d.Calib3d
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.MatOfDouble
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.MatOfPoint3f
+import org.opencv.core.Point
+import org.opencv.core.Point3
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -26,6 +35,15 @@ class MainActivity : AppCompatActivity(), FaceLandmarkerHelper.LandmarkerListene
 
     private lateinit var faceLandmarkerHelper: FaceLandmarkerHelper
 
+    private lateinit var face3D: MatOfPoint3f
+
+    private lateinit var face2D: MatOfPoint2f
+
+    private lateinit var cameraMatrix: Mat
+    private lateinit var distCoeffs: MatOfDouble
+
+    private lateinit var rVec: Mat
+    private lateinit var tVec: Mat
     private val activityResultLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -80,6 +98,21 @@ class MainActivity : AppCompatActivity(), FaceLandmarkerHelper.LandmarkerListene
                 faceLandmarkerHelper.setupFaceLandmarker()
             }
         }
+        if (!OpenCVLoader.initDebug())
+            Log.e("OpenCV", "Unable to load OpenCV!")
+        else {
+            face3D = MatOfPoint3f()
+
+            face2D = MatOfPoint2f()
+
+            cameraMatrix = Mat(3,3,CvType.CV_64F)
+            distCoeffs = MatOfDouble()
+
+            rVec = Mat()
+            tVec = Mat()
+            Log.d("OpenCV", "OpenCV loaded Successfully!")
+        }
+
     }
 
     private fun startCamera() {
@@ -172,12 +205,74 @@ class MainActivity : AppCompatActivity(), FaceLandmarkerHelper.LandmarkerListene
         this.runOnUiThread {
             viewBinding.textView.text = getString(R.string.face_detected)
         }
+        val w = resultBundle.inputImageWidth
+        val h = resultBundle.inputImageHeight
+
+        val faceLandmarkerResult = resultBundle.results
+        val faceLandmarks = faceLandmarkerResult.faceLandmarks()[0]
+
+        val point3D: MutableList<Point3> = ArrayList()
+        val point2D: MutableList<Point> = ArrayList()
+        for ((idx, lm) in faceLandmarks.withIndex()) {
+            if (idx == 33 || idx == 263 || idx == 1 || idx == 61 || idx == 291 || idx == 199) {
+                val x = (lm.x() * w).toDouble()
+                val y = (lm.y() * h).toDouble()
+                point2D.add(Point(x, y))
+                point3D.add(Point3(x, y, lm.z().toDouble()))
+            }
+        }
+        face3D.fromList(point3D)
+        face2D.fromList(point2D)
+        val focalLength = 1 * w
+//        val matrixData = doubleArrayOf(focalLength.toDouble(), 0.0, w / 2.0, 0.0, focalLength.toDouble(), h / 2.0, 0.0, 0.0, 1.0)
+        cameraMatrix.put(
+            0,
+            0,
+            focalLength.toDouble(),
+            0.0,
+            h / 2.0,
+            0.0,
+            focalLength.toDouble(),
+            w / 2.0,
+            0.0,
+            0.0,
+            1.0
+        )
+        distCoeffs = MatOfDouble(Mat.zeros(4, 1, CvType.CV_64F))
+
+        try {
+            Calib3d.solvePnP(
+                face3D,
+                face2D,
+                cameraMatrix,
+                distCoeffs,
+                rVec,
+                tVec
+            )
+        } catch (e: Exception) {
+            Log.e("tan264", e.message.toString())
+        }
+
+        val rotationMatrix = Mat(3, 3, CvType.CV_64FC1)
+        rotationMatrix.put(0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        Calib3d.Rodrigues(rVec, rotationMatrix)
+        val euler = Calib3d.RQDecomp3x3(rotationMatrix, Mat(), Mat())
+        val pitch = euler[0] * 360
+        val yaw = euler[1] * 360
+        this.runOnUiThread {
+            viewBinding.textViewYaw.text = String.format("%.2f",yaw)
+            viewBinding.textViewPitch.text = String.format("%.2f",pitch)
+        }
+//        Log.d("vpitch", "${euler[0] * 360}")
+//        Log.d("vyaw", "${euler[1] * 360}")
+
     }
 
     override fun onEmpty() {
         Log.d("tan264", "khong co")
-        this.runOnUiThread{
+        this.runOnUiThread {
             viewBinding.textView.text = getString(R.string.no_face)
         }
     }
+
 }

@@ -25,6 +25,7 @@ import androidx.camera.core.ImageProxy
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
 import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
@@ -32,7 +33,7 @@ import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
 class FaceLandmarkerHelper(
     val context: Context,
     // The listener is only used when running in RunningMode.LIVE_STREAM
-    var faceLandmarkerListener: LandmarkerListener? = null
+    private var faceLandmarkerListener: LandmarkerListener? = null
 ) {
 
     // For this example this needs to be a var so it can be reset on changes. If the faceDetector
@@ -61,7 +62,7 @@ class FaceLandmarkerHelper(
 
         val modelName = "face_landmarker.task"
         val threshold: Float = THRESHOLD_DEFAULT
-        val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath(modelName)
+        val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath(modelName).setDelegate(Delegate.GPU)
 
         try {
             val optionsBuilder = FaceLandmarker.FaceLandmarkerOptions.builder()
@@ -69,6 +70,7 @@ class FaceLandmarkerHelper(
                 .setResultListener(this::returnLivestreamResult)
                 .setErrorListener(this::returnLivestreamError)
                 .setRunningMode(RunningMode.LIVE_STREAM)
+                .setNumFaces(1)
             val options = optionsBuilder.build()
             faceLandmarker = FaceLandmarker.createFromOptions(context, options)
         } catch (e: IllegalStateException) {
@@ -212,7 +214,6 @@ class FaceLandmarkerHelper(
     interface LandmarkerListener {
         fun onError(error: String, errorCode: Int = OTHER_ERROR)
         fun onResults(resultBundle: ResultBundle)
-
         fun onEmpty() {}
     }
 }

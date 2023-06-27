@@ -48,11 +48,47 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:textSize="26sp"
         android:textAlignment="center"
+        android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/horizontalGuidelineBottom"
         tools:text="Khong co mat" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yaw: "
+        app:layout_constraintTop_toBottomOf="@id/textView"
+        app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"
+        app:layout_constraintTop_toTopOf="@id/textViewYaw"
+        android:textSize="24sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pitch: "
+        app:layout_constraintTop_toBottomOf="@id/textView"
+        app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"
+        app:layout_constraintTop_toTopOf="@id/textViewPitch"
+        android:textSize="24sp"/>
+
+    <TextView
+        android:id="@+id/textViewYaw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
+        app:layout_constraintTop_toBottomOf="@id/textView"
+        tools:text="Yaw: 0" />
+
+    <TextView
+        android:id="@+id/textViewPitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
+        app:layout_constraintTop_toBottomOf="@id/textViewYaw"
+        tools:text="Pitch: 0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
