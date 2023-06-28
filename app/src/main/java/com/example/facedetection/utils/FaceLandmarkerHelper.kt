@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.facedetection
+package com.example.facedetection.utils
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -31,7 +31,7 @@ import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
 
 class FaceLandmarkerHelper(
-    val context: Context,
+    private val context: Context,
     // The listener is only used when running in RunningMode.LIVE_STREAM
     private var faceLandmarkerListener: LandmarkerListener? = null
 ) {

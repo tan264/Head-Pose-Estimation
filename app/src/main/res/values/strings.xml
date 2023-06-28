@@ -2,4 +2,10 @@
     <string name="app_name">Face Detection</string>
     <string name="no_face">No face detected</string>
     <string name="face_detected">Face detected.</string>
+    <string name="check">Check</string>
+    <string name="permission_request_granted">Permission request granted</string>
+    <string name="permission_request_denied">Permission request denied</string>
+    <string name="yaw">Yaw: %1$.2f</string>
+    <string name="pitch">Pitch: %1$.2f</string>
+    <string name="waiting_camera">Waiting for camera …</string>
 </resources>

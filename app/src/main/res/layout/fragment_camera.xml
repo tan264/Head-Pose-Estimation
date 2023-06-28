@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.facedetection.viewmodels.CameraViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/viewFinder"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/horizontalGuidelineBottom"
+            app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
+            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"
+            app:layout_constraintTop_toTopOf="@id/horizontalGuidelineTop" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/horizontalGuidelineBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".8" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/horizontalGuidelineTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/verticalGuidelineLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".1" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/verticalGuidelineRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".9" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            android:textSize="26sp"
+            android:text="@{viewModel.message}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/horizontalGuidelineBottom"
+            tools:text="Khong co mat" />
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Yaw: "-->
+<!--            android:textSize="24sp"-->
+<!--            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/textView"-->
+<!--            app:layout_constraintTop_toTopOf="@id/textViewYaw" />-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Pitch: "-->
+<!--            android:textSize="24sp"-->
+<!--            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/textView"-->
+<!--            app:layout_constraintTop_toTopOf="@id/textViewPitch" />-->
+
+        <TextView
+            android:id="@+id/textViewYaw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{@string/yaw(viewModel.yaw)}"
+            android:textSize="@dimen/medium_text"
+            app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
+            app:layout_constraintTop_toBottomOf="@id/textView"
+            tools:text="Yaw: 0" />
+
+        <TextView
+            android:id="@+id/textViewPitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{@string/pitch(viewModel.pitch)}"
+            android:textSize="@dimen/medium_text"
+            app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
+            app:layout_constraintTop_toBottomOf="@id/textViewYaw"
+            tools:text="Pitch: 0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
