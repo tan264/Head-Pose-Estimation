@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <androidx.camera.view.PreviewView
             android:id="@+id/viewFinder"
             android:layout_width="0dp"
@@ -28,68 +29,61 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".8" />
+            app:layout_constraintGuide_percent=".75" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/horizontalGuidelineTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".05" />
+            app:layout_constraintGuide_percent=".15" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/verticalGuidelineLeft"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent=".1" />
+            app:layout_constraintGuide_percent="0.15" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/verticalGuidelineRight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent=".9" />
+            app:layout_constraintGuide_percent="0.85" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:textAlignment="center"
-            android:textSize="26sp"
+            android:layout_marginTop="@dimen/between_element_col"
+            android:layout_marginBottom="@dimen/between_element_col"
             android:text="@{viewModel.message}"
+            android:textAlignment="center"
+            android:textSize="@dimen/medium_text"
+            app:layout_constraintBottom_toTopOf="@id/horizontalGuidelineTop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/horizontalGuidelineBottom"
             tools:text="Khong co mat" />
 
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Yaw: "-->
-<!--            android:textSize="24sp"-->
-<!--            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/textView"-->
-<!--            app:layout_constraintTop_toTopOf="@id/textViewYaw" />-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Pitch: "-->
-<!--            android:textSize="24sp"-->
-<!--            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/textView"-->
-<!--            app:layout_constraintTop_toTopOf="@id/textViewPitch" />-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.faceAngle}"
+            android:textSize="@dimen/medium_text"
+            app:layout_constraintBottom_toTopOf="@id/textView"
+            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"
+            tools:text="Front" />
 
         <TextView
             android:id="@+id/textViewYaw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/between_element_col"
             android:text="@{@string/yaw(viewModel.yaw)}"
             android:textSize="@dimen/medium_text"
             app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
-            app:layout_constraintTop_toBottomOf="@id/textView"
+            app:layout_constraintTop_toBottomOf="@id/horizontalGuidelineBottom"
             tools:text="Yaw: 0" />
 
         <TextView
@@ -101,6 +95,66 @@
             app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
             app:layout_constraintTop_toBottomOf="@id/textViewYaw"
             tools:text="Pitch: 0" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"
+            app:layout_constraintTop_toTopOf="@id/textViewYaw">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvt_front"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawableEnd="@{viewModel.hasFrontAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
+                android:drawablePadding="@dimen/between_element_row"
+                android:text="@string/front"
+                android:textSize="@dimen/medium_text"
+                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvt_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@{viewModel.hasRightAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
+                android:drawablePadding="@dimen/between_element_row"
+                android:text="@string/right"
+                android:textSize="@dimen/medium_text"
+                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvt_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@{viewModel.hasLeftAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
+                android:drawablePadding="@dimen/between_element_row"
+                android:text="@string/left"
+                android:textSize="@dimen/medium_text"
+                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvt_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@{viewModel.hasUpAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
+                android:drawablePadding="@dimen/between_element_row"
+                android:text="@string/up"
+                android:textSize="@dimen/medium_text"
+                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvt_down"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@{viewModel.hasDownAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
+                android:drawablePadding="@dimen/between_element_row"
+                android:text="@string/down"
+                android:textSize="@dimen/medium_text"
+                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
+        </LinearLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -13,6 +13,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.facedetection.utils.FaceLandmarkerHelper
 import com.example.facedetection.R
 import com.example.facedetection.databinding.FragmentCameraBinding
@@ -55,6 +56,11 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
         cameraExecutor.execute {
             faceLandmarkerHelper = FaceLandmarkerHelper(requireContext(), this)
             startCamera()
+        }
+        viewModel.isDone.observe(viewLifecycleOwner) {
+            if (it) {
+                findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToCompleteFragment())
+            }
         }
     }
 
@@ -123,11 +129,6 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
             cameraExecutor.execute { faceLandmarkerHelper.clearFaceLandmarker() }
         }
     }
-
-//    override fun onStop() {
-//        super.onStop()
-//        cameraExecutor.shutdown()
-//    }
 
     override fun onDestroyView() {
         super.onDestroyView()

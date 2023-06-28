@@ -62,7 +62,8 @@ class FaceLandmarkerHelper(
 
         val modelName = "face_landmarker.task"
         val threshold: Float = THRESHOLD_DEFAULT
-        val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath(modelName).setDelegate(Delegate.GPU)
+        val baseOptionsBuilder =
+            BaseOptions.builder().setModelAssetPath(modelName).setDelegate(Delegate.GPU)
 
         try {
             val optionsBuilder = FaceLandmarker.FaceLandmarkerOptions.builder()

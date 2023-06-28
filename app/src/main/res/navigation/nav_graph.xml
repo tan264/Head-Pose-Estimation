@@ -16,5 +16,15 @@
     <fragment
         android:id="@+id/cameraFragment"
         android:name="com.example.facedetection.fragments.CameraFragment"
-        android:label="CameraFragment" />
+        android:label="CameraFragment"
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_cameraFragment_to_completeFragment"
+            app:destination="@id/completeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/completeFragment"
+        android:name="com.example.facedetection.fragments.CompleteFragment"
+        android:label="CompleteFragment"
+        tools:layout="@layout/fragment_complete"/>
 </navigation>

@@ -25,6 +25,27 @@ class CameraViewModel : ViewModel() {
     private val _pitch = MutableLiveData<Double>()
     val pitch: LiveData<Double> = _pitch
 
+    private val _faceAngle = MutableLiveData<String>()
+    val faceAngle: LiveData<String> = _faceAngle
+
+    private var _hasFrontAngle = MutableLiveData(false)
+    val hasFrontAngle: LiveData<Boolean> = _hasFrontAngle
+
+    private var _hasLeftAngle = MutableLiveData(false)
+    val hasLeftAngle: LiveData<Boolean> = _hasLeftAngle
+
+    private var _hasRightAngle = MutableLiveData(false)
+    val hasRightAngle: LiveData<Boolean> = _hasRightAngle
+
+    private var _hasUpAngle = MutableLiveData(false)
+    val hasUpAngle: LiveData<Boolean> = _hasUpAngle
+
+    private var _hasDownAngle = MutableLiveData(false)
+    val hasDownAngle: LiveData<Boolean> = _hasDownAngle
+
+    private var _isDone = MutableLiveData(false)
+    val isDone: LiveData<Boolean> = _isDone
+
     private lateinit var face3D: MatOfPoint3f
 
     private lateinit var face2D: MatOfPoint2f
@@ -62,6 +83,10 @@ class CameraViewModel : ViewModel() {
 
     private fun setYaw(yaw: Double) {
         _yaw.postValue(yaw)
+    }
+
+    private fun setFaceAngle(faceAngle: String) {
+        _faceAngle.postValue(faceAngle)
     }
 
     // A complicated function using OpenCV
@@ -117,8 +142,28 @@ class CameraViewModel : ViewModel() {
         val euler = Calib3d.RQDecomp3x3(rotationMatrix, Mat(), Mat())
         val pitch = euler[0] * 360
         val yaw = euler[1] * 360
+        setFaceAngle(
+            if (yaw < -15) {
+                _hasLeftAngle.postValue(true)
+                "Left"
+            } else if (pitch > 15) {
+                _hasUpAngle.postValue(true)
+                "Up"
+            } else if (pitch < -15) {
+                _hasDownAngle.postValue(true)
+                "Down"
+            } else if (yaw > 15) {
+                _hasRightAngle.postValue(true)
+                "Right"
+            } else {
+                _hasFrontAngle.postValue(true)
+                "Front"
+            }
+        )
         setPitch(pitch)
         setYaw(yaw)
-
+        if(hasDownAngle.value!! && hasFrontAngle.value!! && hasUpAngle.value!! && hasRightAngle.value!! && hasLeftAngle.value!!) {
+            _isDone.postValue(true)
+        }
     }
 }
