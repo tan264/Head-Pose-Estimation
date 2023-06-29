@@ -142,16 +142,47 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
     }
 
     override fun onResults(resultBundle: FaceLandmarkerHelper.ResultBundle) {
-        viewModel.setMessage(getString(R.string.face_detected))
-        viewModel.calculateYawPitch(
-            resultBundle.results.faceLandmarks()[0],
-            resultBundle.inputImageWidth,
-            resultBundle.inputImageHeight
-        )
+        if (viewModel.isInsideTheBox(
+                resultBundle.results.faceLandmarks()[0],
+                resultBundle.inputImageWidth,
+                resultBundle.inputImageHeight,
+                binding.ovalView.getOvalRect(),
+                binding.ovalView.width,
+                binding.ovalView.height
+            )
+        ) {
+//            viewModel.setMessage(getString(R.string.face_detected))
+//            viewModel.calculateYawPitch(
+//                resultBundle.results.faceLandmarks()[0],
+//                resultBundle.inputImageWidth,
+//                resultBundle.inputImageHeight
+//            )
+            if (!viewModel.hasFrontAngle.value!!) {
+                viewModel.setMessage(getString(R.string.look_straight))
+            } else if (!viewModel.hasRightAngle.value!!) {
+                viewModel.setMessage(getString(R.string.look_right))
+            } else if (!viewModel.hasLeftAngle.value!!) {
+                viewModel.setMessage(getString(R.string.look_left))
+            } else if (!viewModel.hasUpAngle.value!!) {
+                viewModel.setMessage(getString(R.string.look_up))
+            } else if (!viewModel.hasDownAngle.value!!) {
+                viewModel.setMessage(getString(R.string.look_down))
+            }
+            viewModel.calculateYawPitch(
+                resultBundle.results.faceLandmarks()[0],
+                resultBundle.inputImageWidth,
+                resultBundle.inputImageHeight
+            )
+        } else {
+            viewModel.setMessage(getString(R.string.no_face))
+            viewModel.resetStatus()
+        }
+
     }
 
     override fun onEmpty() {
         super.onEmpty()
         viewModel.setMessage(getString(R.string.no_face))
+        viewModel.resetStatus()
     }
 }

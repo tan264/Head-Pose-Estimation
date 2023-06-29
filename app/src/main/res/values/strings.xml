@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Face Detection</string>
-    <string name="no_face">No face detected</string>
+    <string name="no_face">Position your face in the oval</string>
     <string name="face_detected">Face detected.</string>
     <string name="check">Check</string>
     <string name="permission_request_granted">Permission request granted</string>
@@ -9,9 +9,9 @@
     <string name="pitch">Pitch: %1$.2f</string>
     <string name="waiting_camera">Waiting for camera …</string>
     <string name="done">Done!</string>
-    <string name="front">Front</string>
-    <string name="right">Right</string>
-    <string name="left">Left</string>
-    <string name="up">Up</string>
-    <string name="down">Down</string>
+    <string name="look_straight">Look straight</string>
+    <string name="look_right">Look right</string>
+    <string name="look_left">Look left</string>
+    <string name="look_up">Look up</string>
+    <string name="look_down">Look down</string>
 </resources>

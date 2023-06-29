@@ -1,5 +1,6 @@
 package com.example.facedetection.viewmodels
 
+import android.graphics.RectF
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +15,7 @@ import org.opencv.core.MatOfPoint2f
 import org.opencv.core.MatOfPoint3f
 import org.opencv.core.Point
 import org.opencv.core.Point3
+import kotlin.math.max
 
 class CameraViewModel : ViewModel() {
     private val _message = MutableLiveData<String>()
@@ -143,16 +145,16 @@ class CameraViewModel : ViewModel() {
         val pitch = euler[0] * 360
         val yaw = euler[1] * 360
         setFaceAngle(
-            if (yaw < -15) {
+            if (yaw < -15 && _hasRightAngle.value!!) {
                 _hasLeftAngle.postValue(true)
                 "Left"
-            } else if (pitch > 15) {
+            } else if (pitch > 15 && _hasLeftAngle.value!!) {
                 _hasUpAngle.postValue(true)
                 "Up"
-            } else if (pitch < -15) {
+            } else if (pitch < -15 && _hasUpAngle.value!!) {
                 _hasDownAngle.postValue(true)
                 "Down"
-            } else if (yaw > 15) {
+            } else if (yaw > 15 && _hasFrontAngle.value!!) {
                 _hasRightAngle.postValue(true)
                 "Right"
             } else {
@@ -162,8 +164,34 @@ class CameraViewModel : ViewModel() {
         )
         setPitch(pitch)
         setYaw(yaw)
-        if(hasDownAngle.value!! && hasFrontAngle.value!! && hasUpAngle.value!! && hasRightAngle.value!! && hasLeftAngle.value!!) {
+        if (hasDownAngle.value!! && hasFrontAngle.value!! && hasUpAngle.value!! && hasRightAngle.value!! && hasLeftAngle.value!!) {
             _isDone.postValue(true)
         }
+    }
+
+    fun isInsideTheBox(
+        faceLandmarks: List<NormalizedLandmark>,
+        imageWidth: Int,
+        imageHeight: Int,
+        box: RectF,
+        viewWidth: Int,
+        viewHeight: Int
+    ): Boolean {
+        val scaleFactor = max(viewWidth * 1f / imageWidth, viewHeight * 1f / imageHeight)
+
+        return box.contains(
+            faceLandmarks[234].x() * imageWidth * scaleFactor,
+            faceLandmarks[10].y() * imageHeight * scaleFactor,
+            faceLandmarks[454].x() * imageWidth * scaleFactor,
+            faceLandmarks[152].y() * imageHeight * scaleFactor
+        )
+    }
+
+    fun resetStatus() {
+        _hasFrontAngle.postValue(false)
+        _hasRightAngle.postValue(false)
+        _hasLeftAngle.postValue(false)
+        _hasUpAngle.postValue(false)
+        _hasDownAngle.postValue(false)
     }
 }
