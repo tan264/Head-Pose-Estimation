@@ -25,7 +25,6 @@ import androidx.camera.core.ImageProxy
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
 import com.google.mediapipe.tasks.core.BaseOptions
-import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
@@ -63,7 +62,7 @@ class FaceLandmarkerHelper(
         val modelName = "face_landmarker.task"
         val threshold: Float = THRESHOLD_DEFAULT
         val baseOptionsBuilder =
-            BaseOptions.builder().setModelAssetPath(modelName).setDelegate(Delegate.GPU)
+            BaseOptions.builder().setModelAssetPath(modelName)
 
         try {
             val optionsBuilder = FaceLandmarker.FaceLandmarkerOptions.builder()
