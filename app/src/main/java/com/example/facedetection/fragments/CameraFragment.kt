@@ -176,34 +176,36 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
     }
 
     override fun onResults(resultBundle: FaceLandmarkerHelper.ResultBundle) {
-        if (viewModel.isInsideTheBox(
-                resultBundle.results.faceLandmarks()[0],
-                resultBundle.inputImageWidth,
-                resultBundle.inputImageHeight,
-                binding.ovalView.getOvalRect(),
-                binding.ovalView.width,
-                binding.ovalView.height
-            )
-        ) {
-            if (!viewModel.hasFrontAngle.value!!) {
-                viewModel.setMessage(getString(R.string.look_straight))
-            } else if (!viewModel.hasRightAngle.value!!) {
-                viewModel.setMessage(getString(R.string.look_right))
-            } else if (!viewModel.hasLeftAngle.value!!) {
-                viewModel.setMessage(getString(R.string.look_left))
-            } else if (!viewModel.hasUpAngle.value!!) {
-                viewModel.setMessage(getString(R.string.look_up))
-            } else if (!viewModel.hasDownAngle.value!!) {
-                viewModel.setMessage(getString(R.string.look_down))
+        _binding?.let {
+            if (viewModel.isInsideTheBox(
+                    resultBundle.results.faceLandmarks()[0],
+                    resultBundle.inputImageWidth,
+                    resultBundle.inputImageHeight,
+                    it.ovalView.getOvalRect(),
+                    it.ovalView.width,
+                    it.ovalView.height
+                )
+            ) {
+                if (!viewModel.hasFrontAngle.value!!) {
+                    viewModel.setMessage(getString(R.string.look_straight))
+                } else if (!viewModel.hasRightAngle.value!!) {
+                    viewModel.setMessage(getString(R.string.look_right))
+                } else if (!viewModel.hasLeftAngle.value!!) {
+                    viewModel.setMessage(getString(R.string.look_left))
+                } else if (!viewModel.hasUpAngle.value!!) {
+                    viewModel.setMessage(getString(R.string.look_up))
+                } else if (!viewModel.hasDownAngle.value!!) {
+                    viewModel.setMessage(getString(R.string.look_down))
+                }
+                viewModel.calculateYawPitch(
+                    resultBundle.results.faceLandmarks()[0],
+                    resultBundle.inputImageWidth,
+                    resultBundle.inputImageHeight
+                )
+            } else {
+                viewModel.setMessage(getString(R.string.no_face))
+                viewModel.resetStatus()
             }
-            viewModel.calculateYawPitch(
-                resultBundle.results.faceLandmarks()[0],
-                resultBundle.inputImageWidth,
-                resultBundle.inputImageHeight
-            )
-        } else {
-            viewModel.setMessage(getString(R.string.no_face))
-            viewModel.resetStatus()
         }
 
     }

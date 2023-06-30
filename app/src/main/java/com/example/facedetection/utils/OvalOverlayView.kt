@@ -39,8 +39,8 @@ class OvalOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
 
         val centerX = width / 2
         val centerY = height / 2.8
-        val radiusX = width / 3
-        val radiusY = height / 3.6
+        val radiusX = width / 2.8
+        val radiusY = height / 3.4
 
         ovalRect.set(
             (centerX - radiusX).toFloat(),

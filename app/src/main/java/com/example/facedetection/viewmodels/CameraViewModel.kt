@@ -145,7 +145,7 @@ class CameraViewModel : ViewModel() {
             _hasDownAngle.postValue(true)
         } else if (yaw > 15 && _hasFrontAngle.value!! && !_hasRightAngle.value!!) {
             _hasRightAngle.postValue(true)
-        } else if (!_hasFrontAngle.value!!) {
+        } else if (yaw in -8.0..8.0 && pitch in -8.0..8.0 && !_hasFrontAngle.value!!) {
             _hasFrontAngle.postValue(true)
         }
         setPitch(pitch)
