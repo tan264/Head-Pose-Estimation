@@ -68,7 +68,7 @@ dependencies {
     implementation "androidx.camera:camera-view:$camerax_version"
     implementation "androidx.camera:camera-extensions:$camerax_version"
 
-    // MediaPipe FaceDetection
+    // MediaPipe Face landmark detection
     implementation 'com.google.mediapipe:tasks-vision:latest.release'
 
     // OpenCV

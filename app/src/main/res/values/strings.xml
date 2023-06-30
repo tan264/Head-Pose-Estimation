@@ -5,8 +5,8 @@
     <string name="check">Check</string>
     <string name="permission_request_granted">Permission request granted</string>
     <string name="permission_request_denied">Permission request denied</string>
-    <string name="yaw">Yaw: %1$.2f</string>
-    <string name="pitch">Pitch: %1$.2f</string>
+    <string name="yaw" translatable="false">Yaw: %1$.2f</string>
+    <string name="pitch" translatable="false">Pitch: %1$.2f</string>
     <string name="waiting_camera">Waiting for camera …</string>
     <string name="done">Done!</string>
     <string name="look_straight">Look straight</string>

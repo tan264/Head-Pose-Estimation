@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Xác thực khuôn mặt</string>
+    <string name="no_face">Đưa khuôn mặt vào trong khung</string>
+    <string name="face_detected">Đã nhận điện được</string>
+    <string name="check">Kiểm tra</string>
+    <string name="permission_request_granted">Đã được cấp quyền</string>
+    <string name="permission_request_denied">Không được cấp quyền</string>
+    <string name="waiting_camera">Đợi máy ảnh …</string>
+    <string name="done">Đã xong!</string>
+    <string name="look_straight">Nhìn thẳng</string>
+    <string name="look_right">Quay sang phải</string>
+    <string name="look_left">Quay sang trái</string>
+    <string name="look_up">Ngửa lên</string>
+    <string name="look_down">Nhìn xuống</string>
+</resources>
