@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Xác thực khuôn mặt</string>
     <string name="no_face">Đưa khuôn mặt vào trong khung</string>
     <string name="face_detected">Đã nhận điện được</string>
     <string name="check">Kiểm tra</string>

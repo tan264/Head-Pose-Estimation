@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Face Detection</string>
+    <string name="app_name" translatable="false">Face Detection</string>
     <string name="no_face">Position your face in the oval</string>
     <string name="face_detected">Face detected.</string>
     <string name="check">Check</string>
