@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:keepScreenOn="true">
 
     <data>
 
@@ -17,153 +18,43 @@
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@id/horizontalGuidelineBottom"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/horizontalGuidelineTop">
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.camera.view.PreviewView
                 android:id="@+id/viewFinder"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:scaleType="fillStart"/>
+                app:scaleType="fillStart" />
 
             <com.example.facedetection.utils.OvalOverlayView
                 android:id="@+id/oval_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
+
         </FrameLayout>
 
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/horizontalGuidelineBottom"
+            android:id="@+id/guide_line"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".75" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/horizontalGuidelineTop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".15" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/verticalGuidelineLeft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.1" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/verticalGuidelineRight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.9" />
+            app:layout_constraintGuide_percent="0.75" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/between_element_col"
-            android:layout_marginBottom="@dimen/between_element_col"
             android:text="@{viewModel.message}"
             android:textAlignment="center"
-            android:textSize="@dimen/medium_text"
-            app:layout_constraintBottom_toTopOf="@id/horizontalGuidelineTop"
+            android:textColor="@color/white"
+            android:textSize="@dimen/large_text"
+            app:layout_constraintBottom_toTopOf="@+id/guide_line"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="Khong co mat" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.faceAngle}"
-            android:textSize="@dimen/medium_text"
-            app:layout_constraintBottom_toTopOf="@id/textView"
-            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"
-            tools:text="Front" />
-
-        <TextView
-            android:id="@+id/textViewYaw"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/between_element_col"
-            android:text="@{@string/yaw(viewModel.yaw)}"
-            android:textSize="@dimen/medium_text"
-            app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
-            app:layout_constraintTop_toBottomOf="@id/horizontalGuidelineBottom"
-            tools:text="Yaw: 0" />
-
-        <TextView
-            android:id="@+id/textViewPitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{@string/pitch(viewModel.pitch)}"
-            android:textSize="@dimen/medium_text"
-            app:layout_constraintEnd_toEndOf="@id/verticalGuidelineRight"
-            app:layout_constraintTop_toBottomOf="@id/textViewYaw"
-            tools:text="Pitch: 0" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="@id/verticalGuidelineLeft"
-            app:layout_constraintTop_toTopOf="@id/textViewYaw">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvt_front"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:drawableEnd="@{viewModel.hasFrontAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
-                android:drawablePadding="@dimen/between_element_row"
-                android:text="@string/look_straight"
-                android:textSize="@dimen/medium_text"
-                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvt_right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableEnd="@{viewModel.hasRightAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
-                android:drawablePadding="@dimen/between_element_row"
-                android:text="@string/look_right"
-                android:textSize="@dimen/medium_text"
-                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvt_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableEnd="@{viewModel.hasLeftAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
-                android:drawablePadding="@dimen/between_element_row"
-                android:text="@string/look_left"
-                android:textSize="@dimen/medium_text"
-                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvt_up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableEnd="@{viewModel.hasUpAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
-                android:drawablePadding="@dimen/between_element_row"
-                android:text="@string/look_up"
-                android:textSize="@dimen/medium_text"
-                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvt_down"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableEnd="@{viewModel.hasDownAngle ? @drawable/baseline_check_box_24 : @drawable/baseline_check_box_outline_blank_24}"
-                android:drawablePadding="@dimen/between_element_row"
-                android:text="@string/look_down"
-                android:textSize="@dimen/medium_text"
-                tools:drawableEnd="@drawable/baseline_check_box_outline_blank_24" />
-        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

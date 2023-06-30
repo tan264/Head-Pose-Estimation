@@ -22,13 +22,8 @@ class CameraViewModel : ViewModel() {
     val message: LiveData<String> = _message
 
     private val _yaw = MutableLiveData<Double>()
-    val yaw: LiveData<Double> = _yaw
 
     private val _pitch = MutableLiveData<Double>()
-    val pitch: LiveData<Double> = _pitch
-
-    private val _faceAngle = MutableLiveData<String>()
-    val faceAngle: LiveData<String> = _faceAngle
 
     private var _hasFrontAngle = MutableLiveData(false)
     val hasFrontAngle: LiveData<Boolean> = _hasFrontAngle
@@ -87,10 +82,6 @@ class CameraViewModel : ViewModel() {
         _yaw.postValue(yaw)
     }
 
-    private fun setFaceAngle(faceAngle: String) {
-        _faceAngle.postValue(faceAngle)
-    }
-
     // A complicated function using OpenCV
     fun calculateYawPitch(
         faceLandmarks: List<NormalizedLandmark>,
@@ -144,24 +135,19 @@ class CameraViewModel : ViewModel() {
         val euler = Calib3d.RQDecomp3x3(rotationMatrix, Mat(), Mat())
         val pitch = euler[0] * 360
         val yaw = euler[1] * 360
-        setFaceAngle(
-            if (yaw < -15 && _hasRightAngle.value!!) {
-                _hasLeftAngle.postValue(true)
-                "Left"
-            } else if (pitch > 15 && _hasLeftAngle.value!!) {
-                _hasUpAngle.postValue(true)
-                "Up"
-            } else if (pitch < -15 && _hasUpAngle.value!!) {
-                _hasDownAngle.postValue(true)
-                "Down"
-            } else if (yaw > 15 && _hasFrontAngle.value!!) {
-                _hasRightAngle.postValue(true)
-                "Right"
-            } else {
-                _hasFrontAngle.postValue(true)
-                "Front"
-            }
-        )
+        setPitch(pitch)
+        setYaw(yaw)
+        if (yaw < -15 && _hasRightAngle.value!! && !_hasLeftAngle.value!!) {
+            _hasLeftAngle.postValue(true)
+        } else if (pitch > 15 && _hasLeftAngle.value!! && !_hasUpAngle.value!!) {
+            _hasUpAngle.postValue(true)
+        } else if (pitch < -10 && _hasUpAngle.value!! && !_hasDownAngle.value!!) {
+            _hasDownAngle.postValue(true)
+        } else if (yaw > 15 && _hasFrontAngle.value!! && !_hasRightAngle.value!!) {
+            _hasRightAngle.postValue(true)
+        } else if (!_hasFrontAngle.value!!) {
+            _hasFrontAngle.postValue(true)
+        }
         setPitch(pitch)
         setYaw(yaw)
         if (hasDownAngle.value!! && hasFrontAngle.value!! && hasUpAngle.value!! && hasRightAngle.value!! && hasLeftAngle.value!!) {
@@ -183,7 +169,7 @@ class CameraViewModel : ViewModel() {
             faceLandmarks[234].x() * imageWidth * scaleFactor,
             faceLandmarks[10].y() * imageHeight * scaleFactor,
             faceLandmarks[454].x() * imageWidth * scaleFactor,
-            faceLandmarks[152].y() * imageHeight * scaleFactor
+            faceLandmarks[200].y() * imageHeight * scaleFactor
         )
     }
 

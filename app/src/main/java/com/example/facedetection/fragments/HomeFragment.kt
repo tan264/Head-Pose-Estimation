@@ -65,6 +65,11 @@ class HomeFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun navigateCameraFragment() {
         if (hasCameraPermission()) {
             findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToCameraFragment())

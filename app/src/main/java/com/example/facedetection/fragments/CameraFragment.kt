@@ -1,6 +1,11 @@
 package com.example.facedetection.fragments
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +39,8 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
 
     private lateinit var faceLandmarkerHelper: FaceLandmarkerHelper
 
+    private lateinit var vib: Vibrator
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +51,14 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
         binding.apply {
             lifecycleOwner = this@CameraFragment
             binding.viewModel = this@CameraFragment.viewModel
+        }
+        vib = if (Build.VERSION.SDK_INT >= 31) {
+            val vibratorManager =
+                activity?.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            activity?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
 
         return binding.root
@@ -57,10 +72,27 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
             faceLandmarkerHelper = FaceLandmarkerHelper(requireContext(), this)
             startCamera()
         }
-        viewModel.isDone.observe(viewLifecycleOwner) {
-            if (it) {
-                findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToCompleteFragment())
+        viewModel.apply {
+            isDone.observe(viewLifecycleOwner) {
+                if (it) {
+                    findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToCompleteFragment())
+                }
             }
+            hasFrontAngle.observe(
+                viewLifecycleOwner
+            ) { if (it) vibrate(vib) }
+            hasRightAngle.observe(
+                viewLifecycleOwner
+            ) { if (it) vibrate(vib) }
+            hasLeftAngle.observe(
+                viewLifecycleOwner
+            ) { if (it) vibrate(vib) }
+            hasUpAngle.observe(
+                viewLifecycleOwner
+            ) { if (it) vibrate(vib) }
+            hasDownAngle.observe(
+                viewLifecycleOwner
+            ) { if (it) vibrate(vib) }
         }
     }
 
@@ -89,7 +121,8 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
 
             // Select back camera as a default
             val cameraSelector =
-                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT).build()
+                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                    .build()
 
             imageAnalyzer =
                 ImageAnalysis.Builder()
@@ -132,6 +165,7 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding = null
 
         cameraExecutor.shutdown()
         cameraExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
@@ -151,12 +185,6 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
                 binding.ovalView.height
             )
         ) {
-//            viewModel.setMessage(getString(R.string.face_detected))
-//            viewModel.calculateYawPitch(
-//                resultBundle.results.faceLandmarks()[0],
-//                resultBundle.inputImageWidth,
-//                resultBundle.inputImageHeight
-//            )
             if (!viewModel.hasFrontAngle.value!!) {
                 viewModel.setMessage(getString(R.string.look_straight))
             } else if (!viewModel.hasRightAngle.value!!) {
@@ -185,4 +213,23 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
         viewModel.setMessage(getString(R.string.no_face))
         viewModel.resetStatus()
     }
+
+    private fun vibrate(vib: Vibrator) {
+        val duration = 5L
+        if (Build.VERSION.SDK_INT >= 26) {
+            vib.vibrate(
+                VibrationEffect.createOneShot(
+                    duration, if (Build.VERSION.SDK_INT >= 29) {
+                        VibrationEffect.EFFECT_TICK
+                    } else {
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    }
+                )
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            vib.vibrate(duration)
+        }
+    }
+
 }

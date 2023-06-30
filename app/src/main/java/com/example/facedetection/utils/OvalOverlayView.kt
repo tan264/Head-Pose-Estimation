@@ -9,6 +9,7 @@ import android.graphics.RectF
 import android.graphics.Region
 import android.os.Build
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 
 class OvalOverlayView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
@@ -37,9 +38,9 @@ class OvalOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         super.onDraw(canvas)
 
         val centerX = width / 2
-        val centerY = height / 2
-        val radiusX = width / 3.4
-        val radiusY = height / 2.4
+        val centerY = height / 2.8
+        val radiusX = width / 3
+        val radiusY = height / 3.6
 
         ovalRect.set(
             (centerX - radiusX).toFloat(),
@@ -47,13 +48,16 @@ class OvalOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
             (centerX + radiusX).toFloat(),
             (centerY + radiusY).toFloat()
         )
+        Log.d(
+            "tan264",
+            "Left: ${(centerX - radiusX).toFloat()}, Top: ${(centerY - radiusY).toFloat()}, Right: ${(centerX + radiusX).toFloat()}, Bottom: ${(centerY + radiusY).toFloat()}"
+        )
 
         ovalPath.addOval(ovalRect, Path.Direction.CCW)
-        if(Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= 26) {
             canvas?.clipOutPath(ovalPath)
         } else {
-            @Suppress("DEPRECATION")
-            canvas?.clipPath(ovalPath, Region.Op.DIFFERENCE)
+            @Suppress("DEPRECATION") canvas?.clipPath(ovalPath, Region.Op.DIFFERENCE)
         }
         canvas?.drawPaint(blurPaint)
     }
