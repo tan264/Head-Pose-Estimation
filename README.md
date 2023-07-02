@@ -15,4 +15,4 @@ enabling the determination of the directness and orientation of the face
 this [repo](https://github.com/QuickBirdEng/opencv-android)**
 
 ## Demo
-<img src="/demo/1351190849151434476-_online-video-cutter.com_.gif" width="360" height="740" />
+<img src="/demo/demo.gif" width="360" height="740" />
