@@ -22,12 +22,26 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.ImageProxy
+
+// mediapipe
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
+
+// opencv
+import org.opencv.android.OpenCVLoader
+import org.opencv.calib3d.Calib3d
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.MatOfDouble
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.MatOfPoint3f
+import org.opencv.core.Point
+import org.opencv.core.Point3
 
 class FaceLandmarkerHelper(
     private val context: Context,
@@ -39,8 +53,35 @@ class FaceLandmarkerHelper(
     // will not change, a lazy val would be preferable.
     private var faceLandmarker: FaceLandmarker? = null
 
+    private lateinit var face3D: MatOfPoint3f
+
+    private lateinit var face2D: MatOfPoint2f
+
+    private lateinit var cameraMatrix: Mat
+    private lateinit var distCoeffs: MatOfDouble
+
+    private lateinit var rVec: Mat
+    private lateinit var tVec: Mat
+
+    private var yaw = 0.0
+    private var pitch = 0.0
+
     init {
         setupFaceLandmarker()
+        if (!OpenCVLoader.initDebug())
+            Log.e("OpenCV", "Unable to load OpenCV!")
+        else {
+            face3D = MatOfPoint3f()
+
+            face2D = MatOfPoint2f()
+
+            cameraMatrix = Mat(3, 3, CvType.CV_64F)
+            distCoeffs = MatOfDouble()
+
+            rVec = Mat()
+            tVec = Mat()
+            Log.d("OpenCV", "OpenCV loaded Successfully!")
+        }
     }
 
     fun clearFaceLandmarker() {
@@ -171,17 +212,97 @@ class FaceLandmarkerHelper(
             val finishTimeMs = SystemClock.uptimeMillis()
             val inferenceTime = finishTimeMs - result.timestampMs()
 
-            faceLandmarkerListener?.onResults(
-                ResultBundle(
-                    result,
-                    inferenceTime,
-                    input.height,
-                    input.width
+            faceLandmarkerListener?.let {
+                calculateYawPitch(
+                    result.faceLandmarks()[0],
+                    imageWidth = input.width,
+                    imageHeight = input.height
                 )
-            )
+                it.onResults(
+                    ResultBundle(
+                        result,
+                        inferenceTime,
+                        input.height,
+                        input.width,
+                        yaw, pitch
+                    )
+                )
+            }
         } else {
             faceLandmarkerListener?.onEmpty()
         }
+    }
+
+    private fun calculateYawPitch(
+        faceLandmarks: List<NormalizedLandmark>,
+        imageWidth: Int,
+        imageHeight: Int
+    ) {
+        val points3D: MutableList<Point3> = ArrayList()
+        val points2D: MutableList<Point> = ArrayList()
+        for ((idx, lm) in faceLandmarks.withIndex()) {
+            if (idx == 33 || idx == 263 || idx == 1 || idx == 61 || idx == 291 || idx == 199) {
+                val x = (lm.x() * imageWidth).toDouble()
+                val y = (lm.y() * imageHeight).toDouble()
+                points2D.add(Point(x, y))
+                points3D.add(Point3(x, y, lm.z().toDouble()))
+            }
+        }
+        face3D.fromList(points3D)
+        face2D.fromList(points2D)
+        val focalLength = 1 * imageWidth
+        cameraMatrix.put(
+            0,
+            0,
+            focalLength.toDouble(),
+            0.0,
+            imageHeight / 2.0,
+            0.0,
+            focalLength.toDouble(),
+            imageWidth / 2.0,
+            0.0,
+            0.0,
+            1.0
+        )
+        distCoeffs = MatOfDouble(Mat.zeros(4, 1, CvType.CV_64F))
+
+        try {
+            Calib3d.solvePnP(
+                face3D,
+                face2D,
+                cameraMatrix,
+                distCoeffs,
+                rVec,
+                tVec
+            )
+        } catch (e: Exception) {
+            Log.e("tan264", e.message.toString())
+        }
+
+        val rotationMatrix = Mat(3, 3, CvType.CV_64FC1)
+        rotationMatrix.put(0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        Calib3d.Rodrigues(rVec, rotationMatrix)
+        val euler = Calib3d.RQDecomp3x3(rotationMatrix, Mat(), Mat())
+        pitch = euler[0] * 360
+        yaw = euler[1] * 360
+//        setPitch(pitch)
+//        setYaw(yaw)
+//        if (yaw < -15 && _hasRightAngle.value!! && !_hasLeftAngle.value!!) {
+//            _hasLeftAngle.postValue(true)
+//        } else if (pitch > 15 && _hasLeftAngle.value!! && !_hasUpAngle.value!!) {
+//            _hasUpAngle.postValue(true)
+//        } else if (pitch < -10 && _hasUpAngle.value!! && !_hasDownAngle.value!!) {
+//            _hasDownAngle.postValue(true)
+//        } else if (yaw > 15 && _hasFrontAngle.value!! && !_hasRightAngle.value!!) {
+//            _hasRightAngle.postValue(true)
+//        } else if (yaw in -8.0..8.0 && pitch in -8.0..8.0 && !_hasFrontAngle.value!!) {
+//            _hasFrontAngle.postValue(true)
+//        }
+//        setPitch(pitch)
+//        setYaw(yaw)
+//        if (hasDownAngle.value!! && hasFrontAngle.value!! && hasUpAngle.value!! && hasRightAngle.value!! && hasLeftAngle.value!!) {
+//            _isDone.postValue(true)
+//        }
     }
 
     // Return errors thrown during detection to this FaceDetectorHelper's caller
@@ -198,6 +319,8 @@ class FaceLandmarkerHelper(
         val inferenceTime: Long,
         val inputImageHeight: Int,
         val inputImageWidth: Int,
+        val yaw: Double,
+        val pitch: Double,
     )
 
     companion object {
