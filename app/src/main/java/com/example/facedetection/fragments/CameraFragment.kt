@@ -182,8 +182,8 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
                     resultBundle.inputImageWidth,
                     resultBundle.inputImageHeight,
                     it.ovalView.getOvalRect(),
-                    it.ovalView.width,
-                    it.ovalView.height
+                    viewWidth = it.ovalView.width,
+                    viewHeight = it.ovalView.height
                 )
             ) {
                 if (!viewModel.hasFrontAngle.value!!) {
@@ -197,17 +197,12 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
                 } else if (!viewModel.hasDownAngle.value!!) {
                     viewModel.setMessage(getString(R.string.look_down))
                 }
-                viewModel.calculateYawPitch(
-                    resultBundle.results.faceLandmarks()[0],
-                    resultBundle.inputImageWidth,
-                    resultBundle.inputImageHeight
-                )
+                viewModel.setFaceAngle(yaw = resultBundle.yaw, pitch = resultBundle.pitch)
             } else {
                 viewModel.setMessage(getString(R.string.no_face))
                 viewModel.resetStatus()
             }
         }
-
     }
 
     override fun onEmpty() {
